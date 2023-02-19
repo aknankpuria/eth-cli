@@ -1,0 +1,1 @@
+# A minimalistic CLI to interact with ethereum mainnet and testnets
