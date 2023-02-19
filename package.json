@@ -1,0 +1,32 @@
+{
+    "name": "eth-cli",
+    "version": "1.0.0",
+    "description": "A minimalistic CLI for interacting with ethereum mainnet and testnetworks",
+    "main": "./dist/index.js",
+    "license": "MIT",
+    "repository": "https://github.com/Oggy107/eth-cli.git",
+    "author": "Oggy107 <urmalsingh10@gmail.com>",
+    "contributors": [
+        {
+            "name": "Aslam Khan"
+        }
+    ],
+    "bin": {
+        "eth": "./dist/index.js"
+    },
+    "scripts": {
+        "build": "yarn tsc"
+    },
+    "devDependencies": {
+        "@types/figlet": "^1.5.5",
+        "@types/node": "^18.14.0",
+        "@types/yargs": "^17.0.22",
+        "tsc": "^2.0.4",
+        "typescript": "^4.9.5"
+    },
+    "dependencies": {
+        "chalk": "4.1.2",
+        "figlet": "^1.5.2",
+        "yargs": "^17.7.0"
+    }
+}
