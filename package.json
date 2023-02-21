@@ -3,6 +3,7 @@
     "version": "1.0.0",
     "description": "A minimalistic CLI for interacting with ethereum mainnet and testnetworks",
     "main": "./dist/index.js",
+    "type": "module",
     "license": "MIT",
     "repository": "https://github.com/Oggy107/eth-cli.git",
     "author": "Oggy107 <urmalsingh10@gmail.com>",
