@@ -6,10 +6,14 @@
     "type": "module",
     "license": "MIT",
     "repository": "https://github.com/Oggy107/eth-cli.git",
-    "author": "Oggy107 <urmalsingh10@gmail.com>",
     "contributors": [
         {
-            "name": "Aslam Khan"
+            "name": "Aslam Khan",
+            "email": "aksi34012@gmail.com"
+        },
+        {
+            "name": "Urmalveer Singh",
+            "email": "urmalsingh10@gmail.com"
         }
     ],
     "bin": {
