@@ -8,6 +8,7 @@
 ## TODO
 
 ### commands
+- [x] get balance
 - [x] get block number
 - [ ] add compiler
 
