@@ -8,7 +8,7 @@
 ## TODO
 
 ### commands
-- [ ] get block number
+- [x] get block number
 - [ ] add compiler
 
 ### features
