@@ -30,7 +30,10 @@ export default class Action {
 
     showBlockNumber = async () => {
         try {
-            console.log((await this.provider.getBlockNumber()).toString());
+            const block = (
+                await this.provider.getBlockNumber()
+            ).toString();
+            console.log(`Block Number : ${block}`);
         } catch (error: any) {
             console.error(error.name, error.message);
         }
