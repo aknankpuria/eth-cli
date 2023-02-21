@@ -12,4 +12,4 @@
 - [ ] add compiler
 
 ### features
-- [ ] add loading indicators or spinners
+- [x] add loading indicators or spinners
