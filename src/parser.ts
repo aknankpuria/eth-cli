@@ -26,6 +26,16 @@ const parse = () => {
             new Action(network).showBlockNumber();
         });
 
+    cli.command("compile")
+        .description("compile solidity smart contract")
+        .requiredOption(
+            "--src <path>",
+            "path to solidity smart contract source code"
+        )
+        .action((args) => {
+            console.log(args);
+        });
+
     cli.parse();
 };
 
