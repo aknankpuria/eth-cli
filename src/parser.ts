@@ -27,13 +27,16 @@ const parse = () => {
         });
 
     cli.command("compile")
-        .description("compile solidity smart contract")
+        .description(
+            "compile solidity smart contract. outputs abi and object code in compiled directory. currently compilation of solidity files without libraries(importing other solidity files) is supported"
+        )
         .requiredOption(
             "--src <path>",
             "path to solidity smart contract source code"
         )
         .action((args) => {
-            console.log(args);
+            const network = cli.opts().network;
+            new Action(network).compile(args.src);
         });
 
     cli.parse();
