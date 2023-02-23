@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const config = {
+    version: "0.1.5",
     networks: {
         goerli: {
             name: "goerli",
