@@ -4,6 +4,7 @@ import logSymbols from "log-symbols";
 import path from "path";
 import fs from "fs";
 import solc from "solc";
+import prettyjson from "prettyjson";
 
 import config from "./config.js";
 import { compiledOutput } from "./types.js";
@@ -63,7 +64,9 @@ export default class Action {
 
             this.stopSpinner(logSymbols.success);
 
-            console.log(block);
+            console.log(
+                `block:\n${prettyjson.renderString(JSON.stringify(block))}`
+            );
         } catch (error: any) {
             this.stopSpinner(logSymbols.error);
 
@@ -95,7 +98,9 @@ export default class Action {
 
             this.stopSpinner(logSymbols.success);
 
-            console.log(`Transaction : ${JSON.stringify(tx, null, 4)}`);
+            console.log(
+                `transaction:\n${prettyjson.renderString(JSON.stringify(tx))}`
+            );
         } catch (error: any) {
             this.stopSpinner(logSymbols.error);
 
