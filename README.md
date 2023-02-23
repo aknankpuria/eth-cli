@@ -12,6 +12,7 @@
 - [x] get block number
 - [x] add compiler
 - [x] get block data from block number 
+- [x] get transaction data from transaction hash 
 
 ### features
 - [x] add loading indicators or spinners

@@ -34,6 +34,14 @@ const parse = () => {
             new Action(network).showBlock(parseInt(args.number));
         });
 
+    cli.command("transaction")
+        .description("get transaction data")
+        .requiredOption("--hash <transaction hash>", "transaction hash")
+        .action((args) => {
+            const network = cli.opts().network;
+            new Action(network).showTransaction(args.hash);
+        });
+
     cli.command("compile")
         .description(
             "compile solidity smart contract. outputs abi and object code in compiled directory. currently compilation of solidity files without libraries(importing other solidity files) is supported"

@@ -87,6 +87,22 @@ export default class Action {
         }
     };
 
+    showTransaction = async (hash: string): Promise<void> => {
+        this.startSpinner("fetching transaction");
+
+        try {
+            const tx = await this.provider.getTransaction(hash);
+
+            this.stopSpinner(logSymbols.success);
+
+            console.log(`Transaction : ${JSON.stringify(tx, null, 4)}`);
+        } catch (error: any) {
+            this.stopSpinner(logSymbols.error);
+
+            console.error(error.name, error.message);
+        }
+    };
+
     compile = async (srcPath: string) => {
         this.startSpinner("compiling solidity");
 
