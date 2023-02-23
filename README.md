@@ -11,6 +11,7 @@
 - [x] get balance
 - [x] get block number
 - [x] add compiler
+- [x] get block data from block number 
 
 ### features
 - [x] add loading indicators or spinners

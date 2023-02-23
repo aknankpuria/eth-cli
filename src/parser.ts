@@ -19,11 +19,19 @@ const parse = () => {
             new Action(network).showBalance(args.address);
         });
 
-    cli.command("block")
+    cli.command("blocknumber")
         .description("get latest block number")
         .action(() => {
             const network = cli.opts().network;
             new Action(network).showBlockNumber();
+        });
+
+    cli.command("block")
+        .description("get block data")
+        .requiredOption("--number <block number>", "get data of block number")
+        .action((args) => {
+            const network = cli.opts().network;
+            new Action(network).showBlock(parseInt(args.number));
         });
 
     cli.command("compile")

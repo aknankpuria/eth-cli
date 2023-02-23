@@ -55,6 +55,22 @@ export default class Action {
         }
     };
 
+    showBlock = async (blockNumber: number): Promise<void> => {
+        this.startSpinner("fetching block");
+
+        try {
+            const block = await this.provider.getBlock(blockNumber);
+
+            this.stopSpinner(logSymbols.success);
+
+            console.log(block);
+        } catch (error: any) {
+            this.stopSpinner(logSymbols.error);
+
+            console.error(error.name, error.message);
+        }
+    };
+
     showBlockNumber = async (): Promise<void> => {
         this.startSpinner("fetching block number");
 
