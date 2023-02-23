@@ -1,8 +1,9 @@
 import { Command, Option } from "commander";
 
 import Action from "./actions.js";
+import { version } from "../package.json";
 
-const cli = new Command("eth");
+const cli = new Command("eth").version(version);
 
 const parse = () => {
     cli.addOption(

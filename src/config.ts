@@ -1,8 +1,6 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-// import { Config } from "./types.js";
-
 const config = {
     networks: {
         goerli: {
