@@ -10,7 +10,7 @@
 ### commands
 - [x] get balance
 - [x] get block number
-- [ ] add compiler
+- [x] add compiler
 
 ### features
 - [x] add loading indicators or spinners
