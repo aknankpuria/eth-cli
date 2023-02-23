@@ -16,3 +16,4 @@
 
 ### features
 - [x] add loading indicators or spinners
+- [x] beautify output 
