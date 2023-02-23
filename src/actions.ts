@@ -111,86 +111,68 @@ export default class Action {
     compile = async (srcPath: string) => {
         this.startSpinner("compiling solidity");
 
-        const readContent = (file: string) => {
-            try {
-                return fs.readFileSync(file, "utf-8");
-            } catch (error: any) {
-                this.stopSpinner(logSymbols.error);
-                console.error(error.name, error.message);
-                process.exit(1);
-            }
+        const readContent = async (file: string): Promise<string> => {
+            const content = await fs.promises.readFile(file, "utf-8");
+            return content;
         };
 
-        const writeContent = (content: string, file: string) => {
-            try {
-                if (!fs.existsSync("compiled")) {
-                    fs.mkdirSync("compiled");
-                }
-
-                const filePath = path.join("compiled", file);
-
-                fs.writeFileSync(filePath, content, "utf-8");
-            } catch (error: any) {
-                this.stopSpinner(logSymbols.error);
-                console.error(error.name, error.message);
-                process.exit(1);
-            }
+        const writeContent = async (
+            content: string,
+            file: string
+        ): Promise<void> => {
+            const filePath = path.join("compiled", file);
+            fs.promises.writeFile(filePath, content, "utf-8");
         };
 
-        const createOrClearDirectory = () => {
+        const createOrClearDirectory = async (): Promise<void> => {
             const dirName = "compiled";
 
-            try {
-                if (!fs.existsSync(dirName)) {
-                    fs.mkdirSync(dirName);
-                }
-
-                const files = fs.readdirSync("compiled");
+            if (!fs.existsSync(dirName)) {
+                fs.mkdirSync(dirName);
+            } else {
+                const files = await fs.promises.readdir(dirName);
 
                 for (const file of files) {
-                    fs.unlink(path.join("compiled", file), (err) => {
+                    fs.unlink(path.join(dirName, file), (err) => {
                         if (err) throw err;
                     });
                 }
-            } catch (error: any) {
-                this.stopSpinner(logSymbols.error);
-                console.error(error.name, error.message);
-                process.exit(1);
             }
         };
-        createOrClearDirectory();
 
-        const isDependencyPresent = (src: string) => {
+        const isDependencyPresent = (src: string): boolean => {
             if (src.match("import")) return true;
 
             return false;
         };
 
-        const srcFileName = path.parse(srcPath).base;
-        const srcFileContent = readContent(srcPath);
+        try {
+            await createOrClearDirectory();
+            const srcFileName = path.parse(srcPath).base;
+            const srcFileContent = await readContent(srcPath);
 
-        const input = {
-            language: "Solidity",
-            sources: {
-                [srcFileName]: {
-                    content: srcFileContent,
-                },
-            },
-            settings: {
-                outputSelection: {
-                    "*": {
-                        "*": ["*"],
+            const input = {
+                language: "Solidity",
+                sources: {
+                    [srcFileName]: {
+                        content: srcFileContent,
                     },
                 },
-            },
-        };
+                settings: {
+                    outputSelection: {
+                        "*": {
+                            "*": ["*"],
+                        },
+                    },
+                },
+            };
 
-        try {
             if (isDependencyPresent(srcFileContent)) {
                 throw new Error(
                     "currently only compilation of solidity files without dependencies(without import statements) is supported"
                 );
             }
+
             const output: compiledOutput = JSON.parse(
                 solc.compile(JSON.stringify(input))
             );
@@ -207,15 +189,10 @@ export default class Action {
 
                     this.stopSpinner(logSymbols.success);
 
-                    console.log("gas estimations");
                     console.log(
-                        `code deposit cost: ${gasEstimation.creation.codeDepositCost}`
-                    );
-                    console.log(
-                        `execution cost: ${gasEstimation.creation.executionCost}`
-                    );
-                    console.log(
-                        `total cost: ${gasEstimation.creation.totalCost}`
+                        `gas estimations:\n${prettyjson.renderString(
+                            JSON.stringify(gasEstimation)
+                        )}`
                     );
                 }
             }
