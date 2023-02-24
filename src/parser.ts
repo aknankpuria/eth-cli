@@ -56,6 +56,19 @@ const parse = () => {
             new Action(network).compile(args.src);
         });
 
+    cli.command("deploy")
+        .description("deploy a contract")
+        .requiredOption(
+            "--bytecode <contract bytecode path>",
+            "path to contract bytecode"
+        )
+        .requiredOption("--abi <abi path>", "path to contract abi")
+        .requiredOption("--key <private key>", "private key")
+        .action((args) => {
+            const network = cli.opts().network;
+            new Action(network).deploy(args.bytecode, args.abi, args.key);
+        });
+
     cli.parse();
 };
 

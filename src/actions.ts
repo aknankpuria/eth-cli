@@ -7,6 +7,7 @@ import solc from "solc";
 import prettyjson from "prettyjson";
 
 import config from "./config.js";
+import { readContent, writeContent } from "./utils.js";
 import { compiledOutput } from "./types.js";
 
 export default class Action {
@@ -200,6 +201,58 @@ export default class Action {
             this.stopSpinner(logSymbols.error);
             console.error(error.name, error.message);
             process.exit(1);
+        }
+    };
+
+    deploy = async (
+        bytecodePath: string,
+        abiPath: string,
+        privateKey: string
+    ): Promise<void> => {
+        this.startSpinner("deploying contract");
+
+        try {
+            const bytecode = await readContent(bytecodePath);
+            const abi = await readContent(abiPath);
+
+            const wallet = new ethers.Wallet(privateKey, this.provider);
+            const contractFactory = new ethers.ContractFactory(
+                abi,
+                bytecode,
+                wallet
+            );
+
+            const contract = await contractFactory.deploy();
+
+            this.stopSpinner(logSymbols.success);
+            this.startSpinner("waiting for block confirmation");
+
+            const transactionReceipt = await contract
+                .deploymentTransaction()
+                ?.wait(1);
+            contract.deploymentTransaction();
+            const transactionResponse = contract.deploymentTransaction();
+
+            const contractData = {
+                ...transactionReceipt,
+                ...transactionResponse,
+            };
+
+            this.stopSpinner(logSymbols.success);
+
+            console.log(
+                `contract:\n${prettyjson.renderString(
+                    JSON.stringify(contractData, (key, value) => {
+                        return typeof value === "bigint"
+                            ? value.toString()
+                            : value;
+                    })
+                )}`
+            );
+        } catch (error: any) {
+            this.stopSpinner(logSymbols.error);
+
+            console.error(error.name, error.message);
         }
     };
 }
