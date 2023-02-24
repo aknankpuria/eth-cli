@@ -14,9 +14,10 @@
 - [x] add compiler
 - [x] get block data from block number 
 - [x] get transaction data from transaction hash 
-- [ ] deploy contract
-- [ ] interact with deployed contract 
+- [x] deploy contract
+- [x] interact with deployed contract 
 
 ### features
 - [x] add loading indicators or spinners
 - [x] beautify output 
+- [ ] option to output contract assembly 

@@ -2,12 +2,18 @@ import { JsonRpcProvider, ethers } from "ethers";
 import ora, { Ora } from "ora";
 import logSymbols from "log-symbols";
 import path from "path";
-import fs from "fs";
 import solc from "solc";
 import prettyjson from "prettyjson";
 
-import config from "./config.js";
 import { compiledOutput } from "./types.js";
+import config from "./config.js";
+import {
+    readContent,
+    writeContent,
+    createOrClearDirectory,
+    isDependencyPresent,
+    parseMethod,
+} from "./utils.js";
 
 export default class Action {
     private provider: JsonRpcProvider;
@@ -111,86 +117,36 @@ export default class Action {
     compile = async (srcPath: string) => {
         this.startSpinner("compiling solidity");
 
-        const readContent = (file: string) => {
-            try {
-                return fs.readFileSync(file, "utf-8");
-            } catch (error: any) {
-                this.stopSpinner(logSymbols.error);
-                console.error(error.name, error.message);
-                process.exit(1);
-            }
-        };
-
-        const writeContent = (content: string, file: string) => {
-            try {
-                if (!fs.existsSync("compiled")) {
-                    fs.mkdirSync("compiled");
-                }
-
-                const filePath = path.join("compiled", file);
-
-                fs.writeFileSync(filePath, content, "utf-8");
-            } catch (error: any) {
-                this.stopSpinner(logSymbols.error);
-                console.error(error.name, error.message);
-                process.exit(1);
-            }
-        };
-
-        const createOrClearDirectory = () => {
-            const dirName = "compiled";
-
-            try {
-                if (!fs.existsSync(dirName)) {
-                    fs.mkdirSync(dirName);
-                }
-
-                const files = fs.readdirSync("compiled");
-
-                for (const file of files) {
-                    fs.unlink(path.join("compiled", file), (err) => {
-                        if (err) throw err;
-                    });
-                }
-            } catch (error: any) {
-                this.stopSpinner(logSymbols.error);
-                console.error(error.name, error.message);
-                process.exit(1);
-            }
-        };
-        createOrClearDirectory();
-
-        const isDependencyPresent = (src: string) => {
-            if (src.match("import")) return true;
-
-            return false;
-        };
-
-        const srcFileName = path.parse(srcPath).base;
-        const srcFileContent = readContent(srcPath);
-
-        const input = {
-            language: "Solidity",
-            sources: {
-                [srcFileName]: {
-                    content: srcFileContent,
-                },
-            },
-            settings: {
-                outputSelection: {
-                    "*": {
-                        "*": ["*"],
-                    },
-                },
-            },
-        };
+        let gasEstimates = null;
+        const outDirName = "compiled";
 
         try {
+            await createOrClearDirectory(outDirName);
+            const srcFileName = path.parse(srcPath).base;
+            const srcFileContent = await readContent(srcPath);
+
             if (isDependencyPresent(srcFileContent)) {
                 throw new Error(
                     "currently only compilation of solidity files without dependencies(without import statements) is supported"
                 );
             }
+
+            const input = {
+                language: "Solidity",
+                sources: {
+                    [srcFileName]: {
+                        content: srcFileContent,
+                    },
+                },
+                settings: {
+                    outputSelection: {
+                        "*": {
+                            "*": ["*"],
+                        },
+                    },
+                },
+            };
+
             const output: compiledOutput = JSON.parse(
                 solc.compile(JSON.stringify(input))
             );
@@ -198,31 +154,127 @@ export default class Action {
             for (let srcName in output.contracts) {
                 for (let contractName in output.contracts[srcName]) {
                     const data = output.contracts[srcName][contractName];
-                    const obj = data.evm.bytecode.object;
+                    const bytecode = data.evm.bytecode.object;
                     const abi = data.abi;
-                    const gasEstimation = data.evm.gasEstimates;
+                    gasEstimates = data.evm.gasEstimates;
 
-                    writeContent(obj, srcName + ".obj");
-                    writeContent(JSON.stringify(abi), srcName + ".abi");
-
-                    this.stopSpinner(logSymbols.success);
-
-                    console.log("gas estimations");
-                    console.log(
-                        `code deposit cost: ${gasEstimation.creation.codeDepositCost}`
+                    writeContent(
+                        path.join(outDirName, srcName + ".obj"),
+                        bytecode
                     );
-                    console.log(
-                        `execution cost: ${gasEstimation.creation.executionCost}`
-                    );
-                    console.log(
-                        `total cost: ${gasEstimation.creation.totalCost}`
+                    writeContent(
+                        path.join(outDirName, srcName + ".abi"),
+                        JSON.stringify(abi)
                     );
                 }
             }
+
+            this.stopSpinner(logSymbols.success);
+
+            console.log(
+                `gas estimations:\n${prettyjson.renderString(
+                    JSON.stringify(gasEstimates)
+                )}`
+            );
         } catch (error: any) {
             this.stopSpinner(logSymbols.error);
             console.error(error.name, error.message);
             process.exit(1);
+        }
+    };
+
+    deploy = async (
+        bytecodePath: string,
+        abiPath: string,
+        privateKey: string
+    ): Promise<void> => {
+        this.startSpinner("deploying contract");
+
+        try {
+            const bytecode = await readContent(bytecodePath);
+            const abi = await readContent(abiPath);
+
+            const wallet = new ethers.Wallet(privateKey, this.provider);
+            const contractFactory = new ethers.ContractFactory(
+                abi,
+                bytecode,
+                wallet
+            );
+
+            const contract = await contractFactory.deploy();
+
+            this.stopSpinner(logSymbols.success);
+            this.startSpinner("waiting for block confirmation");
+
+            const transactionReceipt = await contract
+                .deploymentTransaction()
+                ?.wait(1);
+            contract.deploymentTransaction();
+            const transactionResponse = contract.deploymentTransaction();
+
+            const contractData = {
+                ...transactionReceipt,
+                ...transactionResponse,
+            };
+
+            this.stopSpinner(logSymbols.success);
+
+            console.log(
+                `contract:\n${prettyjson.renderString(
+                    JSON.stringify(contractData, (key, value) => {
+                        return typeof value === "bigint"
+                            ? value.toString()
+                            : value;
+                    })
+                )}`
+            );
+        } catch (error: any) {
+            this.stopSpinner(logSymbols.error);
+
+            console.error(error.name, error.message);
+        }
+    };
+
+    interact = async (
+        _contract: string,
+        abiPath: string,
+        method: string,
+        key: string | null
+    ): Promise<void> => {
+        this.startSpinner(`calling ${method} on contract`);
+
+        try {
+            const abi = await readContent(abiPath);
+
+            const signer = key
+                ? new ethers.Wallet(key, this.provider)
+                : this.provider;
+
+            const contract = new ethers.Contract(_contract, abi, signer);
+            const resp = await eval(`contract.${method}`);
+
+            this.stopSpinner(logSymbols.success);
+
+            console.log(
+                `method call:\n${prettyjson.renderString(
+                    JSON.stringify(
+                        {
+                            data: {
+                                resp,
+                            },
+                        },
+                        (key, value) => {
+                            return typeof value === "bigint"
+                                ? value.toString()
+                                : value;
+                        }
+                    )
+                )}`
+            );
+        } catch (error: any) {
+            this.stopSpinner(logSymbols.error);
+
+            console.error(error.name, error.message);
         }
     };
 }

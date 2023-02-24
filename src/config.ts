@@ -1,9 +1,8 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-// import { Config } from "./types.js";
-
 const config = {
+    version: "1.0.0",
     networks: {
         goerli: {
             name: "goerli",
