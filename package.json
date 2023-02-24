@@ -21,7 +21,8 @@
     },
     "scripts": {
         "build": "yarn tsc",
-        "dev": "yarn nodemon --exec \"yarn build\" -e \"ts\""
+        "dev": "yarn nodemon --exec \"yarn build\" -e \"ts\"",
+        "eth-dev": "node dist/index.js"
     },
     "devDependencies": {
         "@types/figlet": "^1.5.5",
