@@ -2,12 +2,16 @@ import { JsonRpcProvider, ethers } from "ethers";
 import ora, { Ora } from "ora";
 import logSymbols from "log-symbols";
 import path from "path";
-import fs from "fs";
 import solc from "solc";
 import prettyjson from "prettyjson";
 
 import config from "./config.js";
-import { readContent, writeContent } from "./utils.js";
+import {
+    readContent,
+    writeContent,
+    createOrClearDirectory,
+    isDependencyPresent,
+} from "./utils.js";
 import { compiledOutput } from "./types.js";
 
 export default class Action {
@@ -112,45 +116,19 @@ export default class Action {
     compile = async (srcPath: string) => {
         this.startSpinner("compiling solidity");
 
-        const readContent = async (file: string): Promise<string> => {
-            const content = await fs.promises.readFile(file, "utf-8");
-            return content;
-        };
-
-        const writeContent = async (
-            content: string,
-            file: string
-        ): Promise<void> => {
-            const filePath = path.join("compiled", file);
-            fs.promises.writeFile(filePath, content, "utf-8");
-        };
-
-        const createOrClearDirectory = async (): Promise<void> => {
-            const dirName = "compiled";
-
-            if (!fs.existsSync(dirName)) {
-                fs.mkdirSync(dirName);
-            } else {
-                const files = await fs.promises.readdir(dirName);
-
-                for (const file of files) {
-                    fs.unlink(path.join(dirName, file), (err) => {
-                        if (err) throw err;
-                    });
-                }
-            }
-        };
-
-        const isDependencyPresent = (src: string): boolean => {
-            if (src.match("import")) return true;
-
-            return false;
-        };
+        let gasEstimates = null;
+        const outDirName = "compiled";
 
         try {
-            await createOrClearDirectory();
+            await createOrClearDirectory(outDirName);
             const srcFileName = path.parse(srcPath).base;
             const srcFileContent = await readContent(srcPath);
+
+            if (isDependencyPresent(srcFileContent)) {
+                throw new Error(
+                    "currently only compilation of solidity files without dependencies(without import statements) is supported"
+                );
+            }
 
             const input = {
                 language: "Solidity",
@@ -168,12 +146,6 @@ export default class Action {
                 },
             };
 
-            if (isDependencyPresent(srcFileContent)) {
-                throw new Error(
-                    "currently only compilation of solidity files without dependencies(without import statements) is supported"
-                );
-            }
-
             const output: compiledOutput = JSON.parse(
                 solc.compile(JSON.stringify(input))
             );
@@ -181,22 +153,28 @@ export default class Action {
             for (let srcName in output.contracts) {
                 for (let contractName in output.contracts[srcName]) {
                     const data = output.contracts[srcName][contractName];
-                    const obj = data.evm.bytecode.object;
+                    const bytecode = data.evm.bytecode.object;
                     const abi = data.abi;
-                    const gasEstimation = data.evm.gasEstimates;
+                    gasEstimates = data.evm.gasEstimates;
 
-                    writeContent(obj, srcName + ".obj");
-                    writeContent(JSON.stringify(abi), srcName + ".abi");
-
-                    this.stopSpinner(logSymbols.success);
-
-                    console.log(
-                        `gas estimations:\n${prettyjson.renderString(
-                            JSON.stringify(gasEstimation)
-                        )}`
+                    writeContent(
+                        path.join(outDirName, srcName + ".obj"),
+                        bytecode
+                    );
+                    writeContent(
+                        path.join(outDirName, srcName + ".abi"),
+                        JSON.stringify(abi)
                     );
                 }
             }
+
+            this.stopSpinner(logSymbols.success);
+
+            console.log(
+                `gas estimations:\n${prettyjson.renderString(
+                    JSON.stringify(gasEstimates)
+                )}`
+            );
         } catch (error: any) {
             this.stopSpinner(logSymbols.error);
             console.error(error.name, error.message);
