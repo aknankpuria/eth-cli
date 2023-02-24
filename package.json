@@ -22,7 +22,7 @@
     "scripts": {
         "build": "yarn tsc",
         "dev": "yarn nodemon --exec \"yarn build\" -e \"ts\"",
-        "eth-dev": "node dist/index.js"
+        "install-globally": "npm uninstall eth-cli -g && npm install -g"
     },
     "devDependencies": {
         "@types/figlet": "^1.5.5",
