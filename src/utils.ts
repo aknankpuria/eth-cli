@@ -33,3 +33,15 @@ export const isDependencyPresent = (src: string): boolean => {
 
     return false;
 };
+
+export const parseMethod = (method: string) => {
+    const split = method.split("(");
+
+    const name = split[0];
+    const parameters = split[1].split(")").slice(0, -1);
+
+    return {
+        name,
+        parameters,
+    };
+};

@@ -5,14 +5,15 @@ import path from "path";
 import solc from "solc";
 import prettyjson from "prettyjson";
 
+import { compiledOutput } from "./types.js";
 import config from "./config.js";
 import {
     readContent,
     writeContent,
     createOrClearDirectory,
     isDependencyPresent,
+    parseMethod,
 } from "./utils.js";
-import { compiledOutput } from "./types.js";
 
 export default class Action {
     private provider: JsonRpcProvider;
@@ -225,6 +226,49 @@ export default class Action {
                             ? value.toString()
                             : value;
                     })
+                )}`
+            );
+        } catch (error: any) {
+            this.stopSpinner(logSymbols.error);
+
+            console.error(error.name, error.message);
+        }
+    };
+
+    interact = async (
+        _contract: string,
+        abiPath: string,
+        method: string,
+        key: string | null
+    ): Promise<void> => {
+        this.startSpinner(`calling ${method} on contract`);
+
+        try {
+            const abi = await readContent(abiPath);
+
+            const signer = key
+                ? new ethers.Wallet(key, this.provider)
+                : this.provider;
+
+            const contract = new ethers.Contract(_contract, abi, signer);
+            const resp = await eval(`contract.${method}`);
+
+            this.stopSpinner(logSymbols.success);
+
+            console.log(
+                `method call:\n${prettyjson.renderString(
+                    JSON.stringify(
+                        {
+                            data: {
+                                resp,
+                            },
+                        },
+                        (key, value) => {
+                            return typeof value === "bigint"
+                                ? value.toString()
+                                : value;
+                        }
+                    )
                 )}`
             );
         } catch (error: any) {

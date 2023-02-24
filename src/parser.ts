@@ -69,6 +69,28 @@ const parse = () => {
             new Action(network).deploy(args.bytecode, args.abi, args.key);
         });
 
+    cli.command("interact")
+        .description("interact with already deployed contract")
+        .requiredOption(
+            "--contract <contract address>",
+            "address of contract to interact with"
+        )
+        .requiredOption("--abi <abi paht>", "path to contract abi")
+        .requiredOption("--method <method call>", 'eg. --method "getNumber()"')
+        .option(
+            "--key <private key>",
+            "private key is needed to call state changing methods"
+        )
+        .action((args) => {
+            const network = cli.opts().network;
+            new Action(network).interact(
+                args.contract,
+                args.abi,
+                args.method,
+                args.key
+            );
+        });
+
     cli.parse();
 };
 

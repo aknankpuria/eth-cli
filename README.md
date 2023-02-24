@@ -14,7 +14,7 @@
 - [x] get block data from block number 
 - [x] get transaction data from transaction hash 
 - [x] deploy contract
-- [ ] interact with deployed contract 
+- [x] interact with deployed contract 
 
 ### features
 - [x] add loading indicators or spinners
