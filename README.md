@@ -137,7 +137,7 @@ Switch between networks by using `--network` switch before running commands
     ```
     output
 
-    ![compiling](assets/compiling.png)
+    ![compiling](./assets/compiling.png)
 
 # Dev section
 
