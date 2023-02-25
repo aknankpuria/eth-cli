@@ -1,17 +1,13 @@
-import dotenv from "dotenv";
-dotenv.config();
-
-// import { Config } from "./types.js";
-
 const config = {
+    version: "1.5.2",
     networks: {
         goerli: {
             name: "goerli",
-            rpc_url: process.env.GOERLI_RPC_URL!,
+            rpc_url: "https://goerli.blockpi.network/v1/rpc/public",
         },
         mainnet: {
             name: "mainnet",
-            rpc_url: process.env.MAINNET_RPC_URL!,
+            rpc_url: "https://eth.llamarpc.com",
         },
     },
 };

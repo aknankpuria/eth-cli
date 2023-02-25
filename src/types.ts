@@ -10,3 +10,32 @@ export interface Config {
         };
     };
 }
+
+export interface ErrorOptions {
+    suggestion?: string;
+    displayWhole?: boolean;
+}
+
+export interface compiledOutput {
+    contracts: {
+        [srcName: string]: {
+            [contractName: string]: {
+                abi: [];
+                evm: {
+                    assembly: string;
+                    bytecode: {
+                        object: string;
+                    };
+                    gasEstimates: {
+                        creation: {
+                            codeDepositCost: string;
+                            executionCost: string;
+                            totalCost: string;
+                        };
+                    };
+                };
+            };
+        };
+    };
+    errors: [];
+}
