@@ -22,7 +22,7 @@ export default class Block extends Command {
                 if (error.message.includes("overflow")) {
                     this.logger.error(error, {
                         suggestion:
-                            "provided block number is greater than block on blockchain. Try providing a lower block number",
+                            "provided block number is greater than blocks on blockchain. Try providing a lower block number",
                     });
                 } else {
                     this.logger.error(error, {
