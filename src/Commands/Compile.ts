@@ -125,7 +125,15 @@ export default class Compile extends Command {
                     suggestion:
                         "Try checking for syntax and other errors in passed solidity source code",
                 });
+            } else if (error.code == "ENOENT") {
+                this.logger.error(error, {
+                    suggestion: "Try checking path of passed sourcecode",
+                });
             }
+
+            this.logger.error(error, {
+                displayWhole: true,
+            });
         }
     };
 }
