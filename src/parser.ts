@@ -12,7 +12,7 @@ import Interact from "./Commands/Interact.js";
 
 const cli = new Command("eth").version(config.version);
 
-const parse = () => {
+const parse = async () => {
     cli.addOption(
         new Option("--network <type>", "network to use")
             .default("goerli")
@@ -28,7 +28,7 @@ const parse = () => {
 
     cli.command("blocknumber")
         .description("get latest block number")
-        .action(() => {
+        .action(async () => {
             new Blocknumber(cli.opts().network).showBlockNumber();
         });
 
