@@ -7,6 +7,25 @@ import { readContent, writeContent } from "../utils.js";
 
 import { compiledOutput } from "../types.js";
 
+class DependencyPresentError extends Error {
+    constructor() {
+        super(
+            "Dependencies in solidity source code detected. Currently only compilation of solidity files without dependencies(without import statements) is supported"
+        );
+        this.name = "DependencyPresentError";
+    }
+}
+
+class CompilationError extends Error {
+    data: Array<{}>;
+
+    constructor(errorArray: Array<{}>) {
+        super("Compilation Error");
+        this.name = "compilationError";
+        this.data = errorArray;
+    }
+}
+
 export default class Compile extends Command {
     constructor(network: string) {
         super(network);
@@ -35,7 +54,7 @@ export default class Compile extends Command {
     compile = async (srcPath: string) => {
         this.startSpinner("compiling solidity");
 
-        let gasEstimates = null;
+        let gasEstimates = {};
         const outDirName = "compiled";
 
         try {
@@ -44,9 +63,7 @@ export default class Compile extends Command {
             const srcFileContent = await readContent(srcPath);
 
             if (this.isDependencyPresent(srcFileContent)) {
-                throw new Error(
-                    "currently only compilation of solidity files without dependencies(without import statements) is supported"
-                );
+                throw new DependencyPresentError();
             }
 
             const input = {
@@ -69,6 +86,10 @@ export default class Compile extends Command {
                 solc.compile(JSON.stringify(input))
             );
 
+            if (output.errors) {
+                throw new CompilationError(output.errors);
+            }
+
             for (let srcName in output.contracts) {
                 for (let contractName in output.contracts[srcName]) {
                     const data = output.contracts[srcName][contractName];
@@ -89,10 +110,22 @@ export default class Compile extends Command {
 
             this.stopSpinner();
 
-            this.logger("gas estimations", gasEstimates);
+            this.logger.log("gas estimations", gasEstimates);
         } catch (error: any) {
             this.stopSpinner(false);
-            console.error(error.name, error.message);
+
+            if (error instanceof DependencyPresentError) {
+                this.logger.error(error, {
+                    suggestion:
+                        "Try compiling solidity source code with no import statements or dependencies",
+                });
+            } else if (error instanceof CompilationError) {
+                this.logger.error(error, {
+                    displayWhole: true,
+                    suggestion:
+                        "Try checking for syntax and other errors in passed solidity source code",
+                });
+            }
         }
     };
 }

@@ -13,11 +13,13 @@ export default class Block extends Command {
 
             this.stopSpinner();
 
-            this.logger("transaction", tx);
+            this.logger.log("transaction", tx);
         } catch (error: any) {
             this.stopSpinner(false);
 
-            console.error(error.name, error.message);
+            this.logger.error(error, {
+                suggestion: "Try checking value of passed transaction hash",
+            });
         }
     };
 }

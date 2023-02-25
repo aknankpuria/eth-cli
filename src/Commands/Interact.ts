@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { ethers, isError } from "ethers";
 
 import Command from "./Command.js";
 import { readContent } from "../utils.js";
@@ -34,11 +34,27 @@ export default class Interact extends Command {
                 },
             };
 
-            this.logger("method call", data);
+            this.logger.log("method call", data);
         } catch (error: any) {
             this.stopSpinner(false);
 
-            console.error(error.name, error.message);
+            if (isError(error, "INVALID_ARGUMENT")) {
+                this.logger.error(error, {
+                    suggestion:
+                        "Try checking name of the passed method and it's parameters OR value of private key",
+                });
+            } else if (isError(error, "UNSUPPORTED_OPERATION")) {
+                this.logger.error(error, {
+                    suggestion:
+                        "Try checking datatypes and number of parameters passed to method",
+                });
+            } else if (error.code == "ENOENT") {
+                this.logger.error(error, {
+                    suggestion: "Try checking path of passed abi or bytecode",
+                });
+            }
+
+            this.logger.error(error);
         }
     };
 }

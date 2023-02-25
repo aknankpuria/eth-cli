@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { ethers, isError } from "ethers";
 
 import Command from "./Command.js";
 import { readContent } from "../utils.js";
@@ -44,11 +44,21 @@ export default class Deploy extends Command {
 
             this.stopSpinner();
 
-            this.logger("contract", contractData);
+            this.logger.log("contract", contractData);
         } catch (error: any) {
             this.stopSpinner(false);
 
-            console.error(error.name, error.message);
+            if (isError(error, "INVALID_ARGUMENT")) {
+                this.logger.error(error, {
+                    suggestion: "Try checking value of private key",
+                });
+            } else if (error.code == "ENOENT") {
+                this.logger.error(error, {
+                    suggestion: "Try checking path of passed abi or bytecode",
+                });
+            } else {
+                this.logger.error(error);
+            }
         }
     };
 }

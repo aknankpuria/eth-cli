@@ -11,6 +11,11 @@ export interface Config {
     };
 }
 
+export interface ErrorOptions {
+    suggestion?: string;
+    displayWhole?: boolean;
+}
+
 export interface compiledOutput {
     contracts: {
         [srcName: string]: {
@@ -32,4 +37,5 @@ export interface compiledOutput {
             };
         };
     };
+    errors: [];
 }

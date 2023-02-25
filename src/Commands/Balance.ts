@@ -21,11 +21,18 @@ export default class Balance extends Command {
                 eth: ethers.formatEther(balance),
             };
 
-            this.logger("balance", data);
+            this.logger.log("balance", data);
         } catch (error: any) {
             this.stopSpinner(false);
 
-            console.error(error.name, error.message);
+            if (ethers.isError(error, "UNCONFIGURED_NAME")) {
+                this.logger.error(error, {
+                    suggestion:
+                        "provided address does not seem correct. Try checking it",
+                });
+            } else {
+                this.logger.error(error);
+            }
         }
     };
 }
