@@ -129,11 +129,11 @@ export default class Compile extends Command {
                 this.logger.error(error, {
                     suggestion: "Try checking path of passed sourcecode",
                 });
+            } else {
+                this.logger.error(error, {
+                    displayWhole: true,
+                });
             }
-
-            this.logger.error(error, {
-                displayWhole: true,
-            });
         }
     };
 }
