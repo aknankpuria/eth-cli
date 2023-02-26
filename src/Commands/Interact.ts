@@ -53,8 +53,8 @@ export default class Interact extends Command {
                     suggestion: "Try checking path of passed abi or bytecode",
                 });
             } else {
-                
-           this.logger.error(error);
-                 }
+                this.logger.error(error);
+            }
+        }
     };
 }
