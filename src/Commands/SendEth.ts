@@ -6,14 +6,18 @@ export default class SendEth extends Command {
         super(network);
     }
 
-    sendEth = async (to: string, value: string, key: string): Promise<void> => {
+    sendEth = async (
+        to: string,
+        amount: string,
+        key: string
+    ): Promise<void> => {
         this.startSpinner("sending ether");
 
         try {
             const wallet = new ethers.Wallet(key, this.provider);
 
             const tx: TransactionLike = {
-                value: ethers.parseEther(value),
+                value: ethers.parseEther(amount),
                 to,
                 from: await wallet.getAddress(),
             };

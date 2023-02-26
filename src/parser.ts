@@ -107,7 +107,7 @@ const parse = async () => {
         .action((args) => {
             new SendEth(cli.opts().network).sendEth(
                 args.to,
-                args.value,
+                args.amount,
                 args.key
             );
         });
