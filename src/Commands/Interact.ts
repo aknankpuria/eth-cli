@@ -52,9 +52,9 @@ export default class Interact extends Command {
                 this.logger.error(error, {
                     suggestion: "Try checking path of passed abi or bytecode",
                 });
-            }
-
-            this.logger.error(error);
-        }
+            } else {
+                
+           this.logger.error(error);
+                 }
     };
 }
