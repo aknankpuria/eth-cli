@@ -1,0 +1,9 @@
+node_modules
+build
+dist
+.env
+yarn-error.log
+
+# misc
+contract
+compiled
