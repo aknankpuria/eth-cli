@@ -69,7 +69,7 @@ Switch between networks by using `--network` switch before running commands
 
 * Send ether to address
     ```
-    eth [--network {network type}] sendEth --to {address to which send ether to} --value {amount of ether to send} --key {private key to sign transaction}
+    eth [--network {network type}] sendEth --to {address to which send ether to} --amount {amount of ether to send} --key {private key to sign transaction}
     ```
     *note: amount in `--value` switch is to provider in **eth (not in wei)***
 

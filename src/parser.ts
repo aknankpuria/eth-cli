@@ -102,7 +102,7 @@ const parse = async () => {
             "--to <address>",
             "public address of account to send ether to"
         )
-        .requiredOption("--value <value in ether>", "value to send in ether")
+        .requiredOption("--amount <amount in ether>", "amount to send in ether")
         .requiredOption("--key <private key>", "private key")
         .action((args) => {
             new SendEth(cli.opts().network).sendEth(
