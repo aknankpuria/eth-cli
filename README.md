@@ -2,6 +2,8 @@
 
 ## Install
 
+make sure you have node, npm and yarn installed on your machine
+
 * run following commands to install eth-cli globally on your local machine
     ```
     git clone https://github.com/oggy107/eth-cli.git
@@ -158,7 +160,8 @@ Switch between networks by using `--network` switch before running commands
 - [x] get block data from block number 
 - [x] get transaction data from transaction hash 
 - [x] deploy contract
-- [x] interact with deployed contract 
+- [x] interact with deployed contract
+- [x] add ability to send ether
 
 ### features
 - [x] add loading indicators or spinners
