@@ -45,6 +45,10 @@ export default class SendEth extends Command {
                 this.logger.error(error, {
                     suggestion: "Try checking value of passed private key",
                 });
+            } else if (ethers.isError(error, "INSUFFICIENT_FUNDS")) {
+                this.logger.error(error, {
+                    suggestion: "Your are broke :(",
+                });
             } else {
                 this.logger.error(error);
             }
