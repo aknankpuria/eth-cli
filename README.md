@@ -2,6 +2,8 @@
 
 ## Install
 
+make sure you have node, npm and yarn installed on your machine
+
 * run following commands to install eth-cli globally on your local machine
     ```
     git clone https://github.com/oggy107/eth-cli.git
@@ -31,9 +33,11 @@ Commands:
   blocknumber            get latest block number
   block [options]        get block data
   transaction [options]  get transaction data
-  compile [options]      compile solidity smart contract. outputs abi and object code   in compiled directory. currently compilation of solidity files without libraries(importing other solidity files) is supported
+  compile [options]      compile solidity smart contract. outputs abi and object code in compiled directory. currently compilation of solidity files without libraries(importing     
+                         other solidity files) is supported
   deploy [options]       deploy a contract
   interact [options]     interact with already deployed contract
+  sendEth [options]      send ether to address
   help [command]         display help for command
 ```
 
@@ -62,8 +66,14 @@ Switch between networks by using `--network` switch before running commands
 
 * Get balance of address
     ```
-    eth [--network {network type}] balance--address {public address of account to fetch balance of}
+    eth [--network {network type}] balance --address {public address of account to fetch balance of}
     ```
+
+* Send ether to address
+    ```
+    eth [--network {network type}] sendEth --to {address to which send ether to} --amount {amount of ether to send} --key {private key to sign transaction}
+    ```
+    *note: amount in `--value` switch is to provider in **eth (not in wei)***
 
 * Get latest blocknumber of selected network
     ```
@@ -150,7 +160,8 @@ Switch between networks by using `--network` switch before running commands
 - [x] get block data from block number 
 - [x] get transaction data from transaction hash 
 - [x] deploy contract
-- [x] interact with deployed contract 
+- [x] interact with deployed contract
+- [x] add ability to send ether
 
 ### features
 - [x] add loading indicators or spinners
