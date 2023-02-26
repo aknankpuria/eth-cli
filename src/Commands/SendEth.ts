@@ -23,7 +23,7 @@ export default class SendEth extends Command {
             this.stopSpinner();
             this.startSpinner("waiting for confirmation");
 
-            const txReciept = await txResponse.wait(2);
+            const txReciept = await txResponse.wait(1);
 
             const data = {
                 ...txResponse,
