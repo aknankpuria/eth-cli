@@ -98,11 +98,11 @@ export default class Compile extends Command {
                     gasEstimates = data.evm.gasEstimates;
 
                     writeContent(
-                        path.join(outDirName, srcName + ".obj"),
+                        path.join(outDirName, contractName + ".obj"),
                         bytecode
                     );
                     writeContent(
-                        path.join(outDirName, srcName + ".abi"),
+                        path.join(outDirName, contractName + ".abi"),
                         JSON.stringify(abi)
                     );
                 }
