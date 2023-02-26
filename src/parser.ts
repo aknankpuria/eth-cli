@@ -9,6 +9,7 @@ import Transaction from "./Commands/Transaction.js";
 import Compile from "./Commands/Compile.js";
 import Deploy from "./Commands/Deploy.js";
 import Interact from "./Commands/Interact.js";
+import SendEth from "./Commands/SendEth.js";
 
 const cli = new Command("eth").version(config.version);
 
@@ -91,6 +92,22 @@ const parse = async () => {
                 args.contract,
                 args.abi,
                 args.method,
+                args.key
+            );
+        });
+
+    cli.command("sendEth")
+        .description("send ether to address")
+        .requiredOption(
+            "--to <address>",
+            "public address of account to send ether to"
+        )
+        .requiredOption("--value <value in ether>", "value to send in ether")
+        .requiredOption("--key <private key>", "private key")
+        .action((args) => {
+            new SendEth(cli.opts().network).sendEth(
+                args.to,
+                args.value,
                 args.key
             );
         });
