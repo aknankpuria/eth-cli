@@ -6,7 +6,7 @@ make sure you have node, npm and yarn installed on your machine
 
 * run following commands to install eth-cli globally on your local machine
     ```
-    git clone https://github.com/oggy107/eth-cli.git
+    git clone https://github.com/aknankpuria/eth-cli.git
     ```
     ```
     cd eth-cli
