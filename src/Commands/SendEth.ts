@@ -25,7 +25,7 @@ export default class SendEth extends Command {
             const txResponse = await wallet.sendTransaction(tx);
 
             this.stopSpinner();
-            this.startSpinner("waiting for confirmation");
+            this.startSpinner("waiting for block confirmation");
 
             const txReciept = await txResponse.wait(1);
 
@@ -47,7 +47,7 @@ export default class SendEth extends Command {
                 });
             } else if (ethers.isError(error, "INVALID_ARGUMENT")) {
                 this.logger.error(error, {
-                    suggestion: "Try checking value of passed private key",
+                    suggestion: "Try checking value of passed arguments like amount and private key",
                 });
             } else if (ethers.isError(error, "INSUFFICIENT_FUNDS")) {
                 this.logger.error(error, {
